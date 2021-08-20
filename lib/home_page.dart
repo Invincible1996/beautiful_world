@@ -5,11 +5,9 @@
 ///
 ///
 import 'package:beautiful_world/model/country_model.dart';
-import 'package:beautiful_world/util/database_helper.dart';
-import 'package:beautiful_world/util/web_scraper_util.dart';
+import 'package:beautiful_world/service/api_service.dart';
+import 'package:beautiful_world/util/desktop_database_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:html/parser.dart';
-import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   @override
@@ -24,58 +22,44 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     // getData();
 
-    DatabaseHelper.instance.initialDatabase();
-    WebScraperUtil.getNetData();
+    initData();
   }
 
-  /// @create at 8/18/21 13:58
-  /// @create by kevin
-  /// @desc
-  getData() async {
-    var url = 'https://www.worldometers.info/geography/flags-of-the-world/';
+  initData() async {
+    await DesktopDatabaseHelper.instance.initialDatabase();
+    // final list = await WebScraperUtil.getCountryFlags();
 
-    final response = await http.get(Uri.parse(url));
+    // WebScraperUtil.getNetData();
+    // countryList.addAll(list!);
+    // await DatabaseHelper.instance.initialDatabase();
+    // WebScraperUtil.getCountryFlags();
+    // final count = await ApiService.instance.getCountryCounts();
+    // countryList.addAll(await ApiService.instance.queryAllCountry());
 
-    final body = response.body;
+    final list = await ApiService.instance.queryAllCountry();
 
-    final html = parse(body);
+    setState(() {
+      countryList.addAll(list);
+    });
 
-    final liList = html.querySelectorAll('.col-md-4');
-
-    print(liList.length);
-
-    for (var item in liList) {
-      var image = item
-          .querySelector('div')!
-          .querySelector('a')!
-          .querySelector('img')!
-          .attributes['src'];
-      var name = item.querySelector('div')!.querySelector('div')!.text;
-      CountryModel model = CountryModel();
-      model.enName = name;
-      model.imageFlag = 'https://www.worldometers.info$image';
-      model.nativeLanguage = 'english';
-      model.cnName = '暂无';
-      print(name + image!);
-      countryList.add(model);
-      setState(() {});
-    }
+    // print(count);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Beautiful World')),
+      backgroundColor: Color(0XFFF5F5F5),
+      // appBar: AppBar(title: Text('Beautiful World')),
       body: Container(
         // color: Colors.white,
         child: countryList.isEmpty
             ? SizedBox.shrink()
             : GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 1,
+                  crossAxisCount: 3,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
-                  childAspectRatio: 5 / 1,
+                  childAspectRatio: 4,
                 ),
                 itemBuilder: (_, index) {
                   return Container(
@@ -93,8 +77,8 @@ class _HomePageState extends State<HomePage> {
                     child: Row(
                       children: [
                         Container(
-                          height: 90,
-                          width: 90,
+                          width: 120,
+                          height: 80,
                           decoration: BoxDecoration(
                             border: Border.all(
                               width: 1,

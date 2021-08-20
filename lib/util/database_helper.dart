@@ -7,7 +7,8 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common/sqlite_api.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class DatabaseHelper {
   DatabaseHelper._interval();
@@ -26,35 +27,34 @@ class DatabaseHelper {
 // Construct a file path to copy database to
     // Directory documentsDirectory = await getApplicationDocumentsDirectory();
 
-    Directory? sdCard = await getExternalStorageDirectory();
+//     Directory? sdCard = await getExternalStorageDirectory();
+//
+//     print(sdCard?.path);
+//
+//     String path = join(sdCard!.path, "county.sqlite");
+//
+//     print(path);
+// // Only copy if the database doesn't exist
+//     if (FileSystemEntity.typeSync(path) == FileSystemEntityType.notFound) {
+//       // Load database from asset and copy
+//       ByteData data = await rootBundle.load(join('assets', 'county.sqlite'));
+//       List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+//
+//       // Save copied asset to documents
+//       await new File(path).writeAsBytes(bytes);
+//     }
+//
+//     this._db = await openDatabase(path);
 
-    print(sdCard?.path);
-
-    String path = join(sdCard!.path, "county.sqlite");
-
-    print(path);
-// Only copy if the database doesn't exist
-    if (FileSystemEntity.typeSync(path) == FileSystemEntityType.notFound) {
-      // Load database from asset and copy
-      ByteData data = await rootBundle.load(join('assets', 'county.sqlite'));
-      List<int> bytes =
-          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-
-      // Save copied asset to documents
-      await new File(path).writeAsBytes(bytes);
-    }
-
-    this._db = await openDatabase(path);
-
-    var result = await _db!.query(
-      'country',
-      // columns: ['id', 'short_name'],
-      where: 'id >= ?',
-      whereArgs: [
-        100,
-      ],
-    );
-
-    print(result);
+    // var result = await _db!.query(
+    //   'country',
+    //   columns: ['COUNT(*)'],
+    //   where: 'id >= ?',
+    //   whereArgs: [
+    //     0,
+    //   ],
+    // );
+    //
+    // print(result);
   }
 }

@@ -5,7 +5,7 @@
 /// @description: dart
 ///
 ///
-import 'package:beautiful_world/util/database_helper.dart';
+import 'package:beautiful_world/util/desktop_database_helper.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 
@@ -14,9 +14,8 @@ class WebScraperUtil {
   /// @create by kevin
   /// @desc
   static void getNetData() async {
-    print('object');
 
-    var url = 'http://www.fltacn.com/article_392.html';
+    var url = 'https://www.worldometers.info/geography/flags-of-the-world/';
 
     final response = await http.get(Uri.parse(url));
 
@@ -24,37 +23,41 @@ class WebScraperUtil {
 
     final html = parse(body);
 
-    final liList = html.querySelectorAll('tr');
+    final liList = html.querySelectorAll('.col-md-4');
 
     print(liList.length);
-    liList.removeAt(0);
-
-    var buffer = StringBuffer();
+    liList.removeLast();
 
     for (var item in liList) {
-      print(item.children[0].text.trim());
-      print(item.children[1].text.trim());
-      print(item.children[2].text.trim());
-      print(item.children[3].text.trim());
-      // print(item.querySelector('td')!.text);
-      // print(item.querySelector('td')!.text);
+      print(item.text);
+      var image =
+          item.querySelector('a')!.querySelector('img')!.attributes['src'];
+
+      print(image);
+      // https://www.worldometers.info/img/flags/small/tn_vm-flag.gif
+      DesktopDatabaseHelper.instance.db?.insert('country', <String, Object?>{
+        'image_flag': 'https://www.worldometers.info$image',
+        'en_name': '${item.text}'
+      });
     }
 
-    for (var i = 0; i < liList.length; i++) {
-      var element = liList[i];
-      var lastSeparator = i == liList.length - 1 ? ";" : ",";
+    // var buffer = StringBuffer();
 
-      buffer
-        ..write("(")
-        ..write("\"${element.children[0].text}\",")
-        ..write("\"${element.children[1].text}\",")
-        ..write("\"${element.children[2].text}\",")
-        ..write("\"${element.children[3].text}\")$lastSeparator");
-    }
-
-    print(buffer);
-
-    DatabaseHelper.instance.db?.execute(
-        'INSERT INTO country(short_name,cn_name,en_name,fr_name)VALUES${buffer.toString()}');
+    // for (var i = 0; i < liList.length; i++) {
+    //   var element = liList[i];
+    //   var lastSeparator = i == liList.length - 1 ? ";" : ",";
+    //
+    //   buffer
+    //     ..write("(")
+    //     ..write("\"${element.children[0].text}\",")
+    //     ..write("\"${element.children[1].text}\",")
+    //     ..write("\"${element.children[2].text}\",")
+    //     ..write("\"${element.children[3].text}\")$lastSeparator");
+    // }
+    //
+    // print(buffer);
+    //
+    // DatabaseHelper.instance.db?.execute(
+    //     'INSERT INTO country(short_name,cn_name,en_name,fr_name)VALUES${buffer.toString()}');
   }
 }
